@@ -2,6 +2,7 @@ package HalalBot_GCP
 
 import (
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/line/line-bot-sdk-go/linebot"
@@ -17,5 +18,27 @@ func init() {
 
 	if err != nil {
 		log.Fatal(err)
+	}
+}
+
+func HalalBot(w http.ResponseWriter, r *http.Request) {
+	events, err := bot.ParseRequest(r)
+	if err != nil {
+		if err == linebot.ErrInvalidSignature {
+			w.WriteHeader(http.StatusBadRequest)
+		} else {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+	}
+
+	for _, event := range events {
+		if event.Type == linebot.EventTypeMessage {
+			switch message := event.Message.(type) {
+			case *linebot.TextMessage:
+				if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(message.Text)).Do(); err != nil {
+					log.Println(err)
+				}
+			}
+		}
 	}
 }
