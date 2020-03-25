@@ -11,7 +11,9 @@ import (
 var bot *linebot.Client
 
 func init() {
-	bot, err := linebot.New(
+	var err error
+
+	bot, err = linebot.New(
 		os.Getenv("CHANNEL_SECRET"),
 		os.Getenv("CHANNEL_TOKEN"),
 	)
