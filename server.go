@@ -40,6 +40,15 @@ func HalalBot(w http.ResponseWriter, r *http.Request) {
 				if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(message.Text)).Do(); err != nil {
 					log.Println(err)
 				}
+			case *linebot.ImageMessage:
+				img, err := bot.GetMessageContent(message.ID).Do()
+				if err != nil {
+					log.Println(err)
+				}
+				defer img.Content.Close()
+				if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewImageMessage(message.OriginalContentURL, message.PreviewImageURL)).Do(); err != nil {
+					log.Println(err)
+				}
 			}
 		}
 	}
