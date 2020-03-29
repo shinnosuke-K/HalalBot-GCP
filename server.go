@@ -8,14 +8,16 @@ import (
 	"os"
 	"strings"
 
-	"github.com/shinnosuke-K/HalalBot-GCP/halal"
-
 	vision "cloud.google.com/go/vision/apiv1"
 
 	"github.com/line/line-bot-sdk-go/linebot"
 )
 
-var bot *linebot.Client
+var (
+	bot       *linebot.Client
+	hl        *halalFood
+	lineStamp map[bool]map[string]string
+)
 
 func init() {
 	var err error
@@ -27,6 +29,19 @@ func init() {
 
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	hl = newHalal()
+
+	lineStamp = map[bool]map[string]string{
+		true: {
+			"packageID": "2",
+			"stickerID": "179",
+		},
+		false: {
+			"packageID": "2",
+			"stickerID": "39",
+		},
 	}
 }
 
@@ -63,18 +78,18 @@ type halalFood struct {
 	ngFoods []string
 }
 
-func (hf *halalFood) New() *halalFood {
+func newHalal() *halalFood {
 	return &halalFood{ngFoods: []string{"ワイン", "みりん", "日本酒", "ビール", "ラム酒", "料理酒", "豚肉", "豚", "ポーク", "ゼラチン", "ラード"}}
 }
 
-func (hf *halalFood) judge(texts []string) string {
+func (hf *halalFood) judge(texts []string) bool {
 	for _, text := range texts {
 		log.Println(text)
 		if ok := hf.in(text); ok {
-			return "impossible to eat"
+			return false
 		}
 	}
-	return "possible to eat"
+	return true
 }
 
 func (hf *halalFood) in(word string) bool {
@@ -113,9 +128,9 @@ func HalalBot(w http.ResponseWriter, r *http.Request) {
 				defer ctn.Content.Close()
 				texts := ocr(ctn.Content)
 
-				hl := halal.New()
+				canEat := hl.judge(texts)
 
-				if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(hl.Judge(texts))).Do(); err != nil {
+				if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewStickerMessage(lineStamp[canEat]["packageID"], lineStamp[canEat]["stickerID"])).Do(); err != nil {
 					log.Println(err)
 				}
 			}
