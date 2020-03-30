@@ -45,25 +45,25 @@ func init() {
 	}
 }
 
-func ocr(ctn io.ReadCloser) []string {
+func ocr(ctn io.ReadCloser) ([]string, bool) {
 	ctx := context.Background()
 
 	client, err := vision.NewImageAnnotatorClient(ctx)
 	if err != nil {
 		log.Println(err)
-		return []string{"Not Annotate Client"}
+		return nil, false
 	}
 
 	img, err := vision.NewImageFromReader(ctn)
 	if err != nil {
 		log.Println(err)
-		return []string{"Not Image From Reader"}
+		return nil, false
 	}
 
 	texts, err := client.DetectTexts(ctx, img, nil, 1)
 	if err != nil {
 		log.Println(err)
-		return []string{"Not Image From Reader"}
+		return nil, false
 	}
 
 	var detectedTextLists []string
@@ -71,7 +71,7 @@ func ocr(ctn io.ReadCloser) []string {
 		detectedTextLists = append(detectedTextLists, text.GetDescription())
 	}
 
-	return detectedTextLists
+	return detectedTextLists, true
 }
 
 type halalFood struct {
@@ -126,12 +126,19 @@ func HalalBot(w http.ResponseWriter, r *http.Request) {
 				}
 
 				defer ctn.Content.Close()
-				texts := ocr(ctn.Content)
+				texts, ok := ocr(ctn.Content)
 
-				canEat := hl.judge(texts)
+				switch ok {
+				case true:
+					canEat := hl.judge(texts)
+					if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewStickerMessage(lineStamp[canEat]["packageID"], lineStamp[canEat]["stickerID"])).Do(); err != nil {
+						log.Println(err)
+					}
 
-				if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewStickerMessage(lineStamp[canEat]["packageID"], lineStamp[canEat]["stickerID"])).Do(); err != nil {
-					log.Println(err)
+				case false:
+					if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("Please retry")).Do(); err != nil {
+						log.Println(err)
+					}
 				}
 			}
 		}
