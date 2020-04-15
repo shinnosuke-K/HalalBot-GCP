@@ -40,7 +40,7 @@ jobs:
       run:  |
         gcloud functions deploy HalalBot_GCP \
           --region asia-northeast1 \
-          --source . \
+          --source ./functions \
           --entry-point HalalBot\
           --allow-unauthenticated \
           --memory 512 \
