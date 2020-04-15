@@ -30,4 +30,9 @@ jobs:
         service_account_email: ${{ secrets.GCP_SA_EMAIL }}
         service_account_key: ${{ secrets.GCP_SA_KEY }}
         export_default_credentials: true
-    - run: gcloud info
+    
+    - name: GCP info
+      run: gcloud info
+    
+    - name: test
+      run:  ls
