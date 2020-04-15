@@ -37,6 +37,7 @@ jobs:
     - name: Deploy to Cloud Functions
       run:  | 
         gcloud functions deploy HalalBot_GCP \
+          --source . \
           --entry-point HalalBot\
           --memory 512 \
           --runtime go111 \
