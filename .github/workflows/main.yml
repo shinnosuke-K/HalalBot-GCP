@@ -34,5 +34,11 @@ jobs:
     - name: GCP info
       run: gcloud info
     
-    - name: test
-      run:  ls
+    - name: Deploy to Cloud Functions
+      run:  | 
+        gcloud functions deploy HalalBot \
+          --region=asia-northeast1 \
+          --memory=512
+          --runtime=go111 \
+          --trigger-http
+        
