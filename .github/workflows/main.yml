@@ -45,8 +45,9 @@ jobs:
 #           --trigger-http
 
     - name: Notify slack
+      id: success()
       env:
         SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       uses: abinoda/slack-action@v1.0.7
       with:
-        args: '{\"channel\":\"C0121NUCCA1\",\"text\":\"Hello world\"}' 
+        args: '{\"channel\":\"C0121NUCCA1\", \"attachments\": [{\"color\": \"#00FF00\",\"title\": \"Success !\",\"text\": \"<https://ameblo.jp/| Github Actions>\"]}'
