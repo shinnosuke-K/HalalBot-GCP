@@ -20,10 +20,6 @@ jobs:
     - name: Check out the repository
       uses: actions/checkout@v2
 
-    - name: test
-      env:
-        ACTIONS_URL: https://github.com/${{ github.repository }}/runs/${{ github.run_id }}
-      run: echo $ACTIONS_URL
 
     # Runs a single command using the runners shell
 #     - name: Setup gcloud environment
@@ -49,11 +45,11 @@ jobs:
 #           --runtime go111 \
 #           --trigger-http
 
-#    - name: Notify slack
-#      if: success()
-#      env:
-#        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-#        ACTIONS_URL: ${{ }}
-#      uses: abinoda/slack-action@v1.0.7
-#      with:
-#        args: '{ \"channel\":\"C0121NUCCA1\", \"attachments\": [{\"color\": \"#00FF00\",\"title\": \"Success !\",\"text\": \" Repo Action URL \n <https://ameblo.jp/\"}]}'
+    - name: Notify slack
+      if: success()
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        ACTIONS_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      uses: abinoda/slack-action@v1.0.7
+      with:
+        args: '{ \"channel\":\"C0121NUCCA1\", \"attachments\": [{\"color\": \"#00FF00\",\"title\": \"Success !\",\"text\": \" Repo Action URL \n $ACTIONS_URL\"}]}'
