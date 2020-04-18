@@ -45,13 +45,15 @@ jobs:
 #           --runtime go111 \
 #           --trigger-http
 
-    - name: Notify slack
-      if: success()
-      env:
-        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-        ACTIONS_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      uses: abinoda/slack-action@v1.0.7
+#    - name: Notify slack
+#      if: success()
+#      env:
+#        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+#        ACTIONS_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+#      uses: abinoda/slack-action@v1.0.7
+#      with:
+#        args: '{ \"channel\":\"C0121NUCCA1\", \"attachments\": [{\"color\": \"#00FF00\",\"title\": \"Success !\",\"text\": \" Repo Action URL \n ${ACTIONS_URL}\"}]}'
+
+    - name: test
       run: echo ${{ env }}
-      with:
-        args: '{ \"channel\":\"C0121NUCCA1\", \"attachments\": [{\"color\": \"#00FF00\",\"title\": \"Success !\",\"text\": \" Repo Action URL \n ${ACTIONS_URL}\"}]}'
 
