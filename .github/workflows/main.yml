@@ -45,7 +45,7 @@ jobs:
 #           --trigger-http
 
     - name: Notify slack
-      id: success()
+      if: success()
       env:
         SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       uses: abinoda/slack-action@v1.0.7
