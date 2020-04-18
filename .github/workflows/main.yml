@@ -21,7 +21,9 @@ jobs:
       uses: actions/checkout@v2
 
     - name: test
-      run: echo ${{ github.run_id }} ${{ github.run_number }} ${{ github.repository }} ${{ github.event_path }}
+      env:
+        ACTIONS_URL: https://github.com/${{ github.repository }}/runs/${{ github.run_id }}
+      run: echo $ACTIONS_URL
 
     # Runs a single command using the runners shell
 #     - name: Setup gcloud environment
