@@ -49,5 +49,5 @@ jobs:
         SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       uses: pullreminders/slack-action@master
       with:
-        args: '{\"channel\":\"C0121NUCCA1\",\"text\":\"Hello world\"}' 
+        args: '{\"channel\":\"#halalbot\",\"text\":\"Hello world\"}' 
 
