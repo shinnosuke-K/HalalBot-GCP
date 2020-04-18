@@ -44,9 +44,6 @@ jobs:
 #           --runtime go111 \
 #           --trigger-http
            
-    - name: Post Slack messages
-      uses: abinoda/slack-action@v1.0.7
-    
     - name: Notify slack
       env:
         SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
