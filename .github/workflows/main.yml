@@ -55,5 +55,5 @@ jobs:
 #        args: '{ \"channel\":\"C0121NUCCA1\", \"attachments\": [{\"color\": \"#00FF00\",\"title\": \"Success !\",\"text\": \" Repo Action URL \n ${ACTIONS_URL}\"}]}'
 
     - name: test
-      run: echo ${{ env }}
+      run: echo ${{ env.ACTIONS_URL }}
 
