@@ -35,15 +35,15 @@ jobs:
       run: gcloud info
 
     - name: Deploy to Cloud Functions
-      run:  |
-      gcloud functions deploy HalalBot_GCP \
-        --region asia-northeast1 \
-        --source ./functions \
-        --entry-point HalalBot\
-        --allow-unauthenticated \
-        --memory 512 \
-        --runtime go111 \
-        --trigger-http
+      run: |
+        gcloud functions deploy HalalBot_GCP \
+          --region asia-northeast1 \
+          --source ./functions \
+          --entry-point HalalBot\
+          --allow-unauthenticated \
+          --memory 512 \
+          --runtime go111 \
+          --trigger-http
 
     - name: Notify Slack (Success)
       if: success()
