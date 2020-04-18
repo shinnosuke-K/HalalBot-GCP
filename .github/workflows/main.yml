@@ -52,4 +52,5 @@ jobs:
         ACTIONS_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
       uses: abinoda/slack-action@v1.0.7
       with:
-        args: '{ \"channel\":\"C0121NUCCA1\", \"attachments\": [{\"color\": \"#00FF00\",\"title\": \"Success !\",\"text\": \" Repo Action URL \n $ACTIONS_URL\"}]}'
+        args: '{ \"channel\":\"C0121NUCCA1\", \"attachments\": [{\"color\": \"#00FF00\",\"title\": \"Success !\",\"text\": \" Repo Action URL \n ${ACTIONS_URL}\"}]}'
+
