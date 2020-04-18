@@ -50,4 +50,3 @@ jobs:
       uses: abinoda/slack-action@v1.0.7
       with:
         args: '{\"channel\":\"C0121NUCCA1\",\"text\":\"Hello world\"}' 
-
