@@ -55,5 +55,7 @@ jobs:
 #        args: '{ \"channel\":\"C0121NUCCA1\", \"attachments\": [{\"color\": \"#00FF00\",\"title\": \"Success !\",\"text\": \" Repo Action URL \n ${ACTIONS_URL}\"}]}'
 
     - name: test
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        ACTIONS_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
       run: echo ${{ env.ACTIONS_URL }}
-
