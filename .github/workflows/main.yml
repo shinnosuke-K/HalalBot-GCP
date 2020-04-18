@@ -21,17 +21,17 @@ jobs:
       uses: actions/checkout@v2
 
     # Runs a single command using the runners shell
-    - name: Setup gcloud environment
-      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
-      with:
-        version: '285.0.0'
-        project_id: ${{ secrets.GCP_PROJECT_ID }}
-        service_account_email: ${{ secrets.GCP_SA_EMAIL }}
-        service_account_key: ${{ secrets.GCP_SA_KEY }}
-        export_default_credentials: true
+#     - name: Setup gcloud environment
+#       uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+#       with:
+#         version: '285.0.0'
+#         project_id: ${{ secrets.GCP_PROJECT_ID }}
+#         service_account_email: ${{ secrets.GCP_SA_EMAIL }}
+#         service_account_key: ${{ secrets.GCP_SA_KEY }}
+#         export_default_credentials: true
 
-    - name: GCP info
-      run: gcloud info
+#     - name: GCP info
+#       run: gcloud info
 
 #     - name: Deploy to Cloud Functions
 #       run:  |
@@ -47,7 +47,7 @@ jobs:
     - name: Notify slack
       env:
         SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-      uses: pullreminders/slack-action@master
+      uses: abinoda/slack-action@v1.0.7
       with:
         args: '{\"channel\":\"#halalbot\",\"text\":\"Hello world\"}' 
 
