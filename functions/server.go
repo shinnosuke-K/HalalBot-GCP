@@ -17,6 +17,8 @@ var (
 	bot       *linebot.Client
 	hl        *halalFood
 	lineStamp map[bool]map[string]string
+	regWord   []string
+	typing    bool
 )
 
 func init() {
@@ -119,9 +121,6 @@ func HalalBot(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	var regiWord []string
-	var typing bool
-
 	for _, event := range events {
 		if event.Type == linebot.EventTypeMessage {
 			switch message := event.Message.(type) {
@@ -136,7 +135,7 @@ func HalalBot(w http.ResponseWriter, r *http.Request) {
 						"終了するときは何でもいいのでスタンプを押してください✌"
 					typing = true
 				case typing == true:
-					regiWord = append(regiWord, message.Text)
+					regWord = append(regWord, message.Text)
 					msg = "登録完了"
 				}
 
