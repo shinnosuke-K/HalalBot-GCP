@@ -85,20 +85,20 @@ func newHalal() *halalFood {
 func (hf *halalFood) judge(texts []string) (string, bool) {
 	for _, text := range texts {
 		log.Println(text)
-		if ok := hf.in(text); ok {
-			return text, false
+		if name, ok := hf.in(text); ok {
+			return name, false
 		}
 	}
 	return "", true
 }
 
-func (hf *halalFood) in(word string) bool {
+func (hf *halalFood) in(word string) (string, bool) {
 	for _, food := range hf.ngFoods {
 		if ok := strings.Contains(word, food); ok {
-			return true
+			return food, true
 		}
 	}
-	return false
+	return "", false
 }
 
 func HalalBot(w http.ResponseWriter, r *http.Request) {
