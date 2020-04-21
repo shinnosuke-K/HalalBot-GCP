@@ -131,11 +131,7 @@ func HalalBot(w http.ResponseWriter, r *http.Request) {
 				switch ok {
 				case true:
 					foodName, canEat := hl.judge(texts)
-					if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewStickerMessage(lineStamp[canEat]["packageID"], lineStamp[canEat]["stickerID"])).Do(); err != nil {
-						log.Println(err)
-					}
-
-					if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(foodName)).Do(); err != nil {
+					if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewStickerMessage(lineStamp[canEat]["packageID"], lineStamp[canEat]["stickerID"]), linebot.NewTextMessage(foodName)).Do(); err != nil {
 						log.Println(err)
 					}
 
@@ -144,7 +140,6 @@ func HalalBot(w http.ResponseWriter, r *http.Request) {
 						log.Println(err)
 					}
 				}
-
 			}
 		}
 	}
