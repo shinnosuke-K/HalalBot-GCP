@@ -101,6 +101,14 @@ func (hf *halalFood) in(word string) (string, bool) {
 	return "", false
 }
 
+func (hf *halalFood) createNgList() string {
+	var ngList string
+	for _, food := range hf.ngFoods {
+		ngList += food + "\n"
+	}
+	return strings.TrimRight(ngList, "\n")
+}
+
 func HalalBot(w http.ResponseWriter, r *http.Request) {
 	events, err := bot.ParseRequest(r)
 	if err != nil {
@@ -115,7 +123,15 @@ func HalalBot(w http.ResponseWriter, r *http.Request) {
 		if event.Type == linebot.EventTypeMessage {
 			switch message := event.Message.(type) {
 			case *linebot.TextMessage:
-				if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(message.Text)).Do(); err != nil {
+
+				var msg string
+				if message.Text == "NG LIST" {
+					msg = hl.createNgList()
+				} else {
+					msg = message.Text
+				}
+
+				if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(msg)).Do(); err != nil {
 					log.Println(err)
 				}
 
