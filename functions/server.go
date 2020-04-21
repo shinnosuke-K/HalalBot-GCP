@@ -125,10 +125,12 @@ func HalalBot(w http.ResponseWriter, r *http.Request) {
 			case *linebot.TextMessage:
 
 				var msg string
-				if message.Text == "NG LIST" {
+				switch {
+				case message.Text == "NG LIST":
 					msg = hl.createNgList()
-				} else {
-					msg = message.Text
+				case message.Text == "TEST":
+					msg = "食べられない食べ物の名前を教えて下さい\n" +
+						"終了するときは何でもいいのでスタンプを押してください✌"
 				}
 
 				if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(msg)).Do(); err != nil {
