@@ -111,6 +111,12 @@ func (hf *halalFood) createNgList() string {
 	return strings.TrimRight(ngList, "\n")
 }
 
+func (hf *halalFood) regNgFood(regedWords []string) {
+	for _, word := range regedWords {
+		hf.ngFoods = append(hf.ngFoods, word)
+	}
+}
+
 func HalalBot(w http.ResponseWriter, r *http.Request) {
 	events, err := bot.ParseRequest(r)
 	if err != nil {
@@ -166,6 +172,9 @@ func HalalBot(w http.ResponseWriter, r *http.Request) {
 				}
 			case *linebot.StickerMessage:
 				if typing {
+
+					hl.regNgFood(regWord)
+
 					var msg string
 					for _, word := range regWord {
 						msg += word + "\n"
@@ -174,6 +183,8 @@ func HalalBot(w http.ResponseWriter, r *http.Request) {
 					if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(strings.TrimRight(msg, "\n"))).Do(); err != nil {
 						log.Println(err)
 					}
+
+					regWord = []string{}
 				}
 			}
 		}
