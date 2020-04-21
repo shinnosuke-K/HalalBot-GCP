@@ -164,6 +164,17 @@ func HalalBot(w http.ResponseWriter, r *http.Request) {
 						log.Println(err)
 					}
 				}
+			case *linebot.StickerMessage:
+				if typing {
+					var msg string
+					for _, word := range regWord {
+						msg += word + "\n"
+					}
+
+					if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(msg)).Do(); err != nil {
+						log.Println(err)
+					}
+				}
 			}
 		}
 	}
