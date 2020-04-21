@@ -171,7 +171,7 @@ func HalalBot(w http.ResponseWriter, r *http.Request) {
 						msg += word + "\n"
 					}
 
-					if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(msg)).Do(); err != nil {
+					if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(strings.TrimRight(msg, "\n"))).Do(); err != nil {
 						log.Println(err)
 					}
 				}
