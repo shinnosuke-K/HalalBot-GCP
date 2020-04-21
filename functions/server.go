@@ -119,6 +119,9 @@ func HalalBot(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	var regiWord []string
+	var typing bool
+
 	for _, event := range events {
 		if event.Type == linebot.EventTypeMessage {
 			switch message := event.Message.(type) {
@@ -128,9 +131,13 @@ func HalalBot(w http.ResponseWriter, r *http.Request) {
 				switch {
 				case message.Text == "NG LIST":
 					msg = hl.createNgList()
-				case message.Text == "TEST":
-					msg = "食べられない食べ物の名前を教えて下さい\n" +
+				case message.Text == "TEST" && typing != true:
+					msg = "食べられない食べ物の名前を教えて下さい🙇‍\n" +
 						"終了するときは何でもいいのでスタンプを押してください✌"
+					typing = true
+				case typing:
+					regiWord = append(regiWord, message.Text)
+					msg = "登録完了"
 				}
 
 				if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(msg)).Do(); err != nil {
