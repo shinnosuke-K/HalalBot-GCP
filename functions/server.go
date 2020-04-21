@@ -135,7 +135,7 @@ func HalalBot(w http.ResponseWriter, r *http.Request) {
 					msg = "食べられない食べ物の名前を教えて下さい🙇‍\n" +
 						"終了するときは何でもいいのでスタンプを押してください✌"
 					typing = true
-				case typing:
+				case typing == true:
 					regiWord = append(regiWord, message.Text)
 					msg = "登録完了"
 				}
