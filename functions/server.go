@@ -143,6 +143,8 @@ func HalalBot(w http.ResponseWriter, r *http.Request) {
 				case typing == true:
 					regWord = append(regWord, message.Text)
 					msg = "登録完了"
+				default:
+					msg = message.Text
 				}
 
 				if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(msg)).Do(); err != nil {
