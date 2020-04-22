@@ -184,6 +184,7 @@ func HalalBot(w http.ResponseWriter, r *http.Request) {
 						log.Println(err)
 					}
 
+					typing = false
 					regWord = []string{}
 				}
 			}
