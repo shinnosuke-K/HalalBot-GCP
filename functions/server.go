@@ -90,7 +90,7 @@ func (hf *halalFood) judge(texts []string) (string, bool) {
 			return name, false
 		}
 	}
-	return "", true
+	return "ok", true
 }
 
 func (hf *halalFood) in(word string) (string, bool) {
