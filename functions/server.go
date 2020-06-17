@@ -86,7 +86,6 @@ func newHalal() *halalFood {
 
 func (hf *halalFood) judge(texts []string) (string, bool) {
 	for _, text := range texts {
-		log.Println(text)
 		if name, ok := hf.in(text); ok {
 			return name, false
 		}
@@ -163,6 +162,9 @@ func HalalBot(w http.ResponseWriter, r *http.Request) {
 				switch ok {
 				case true:
 					foodName, canEat := hl.judge(texts)
+
+					log.Println(foodName, canEat)
+
 					if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewStickerMessage(lineStamp[canEat]["packageID"], lineStamp[canEat]["stickerID"]), linebot.NewTextMessage(foodName)).Do(); err != nil {
 						log.Println(err)
 					}
@@ -193,7 +195,6 @@ func HalalBot(w http.ResponseWriter, r *http.Request) {
 					if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewStickerMessage(message.PackageID, message.StickerID)).Do(); err != nil {
 						log.Println(err)
 					}
-
 				}
 			}
 		}
