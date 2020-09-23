@@ -17,8 +17,6 @@ var (
 	bot       *linebot.Client
 	hl        *halalFood
 	lineStamp map[bool]map[string]string
-	regWord   []string
-	typing    bool
 )
 
 func init() {
@@ -110,12 +108,6 @@ func (hf *halalFood) createNgList() string {
 	return strings.TrimRight(ngList, "\n")
 }
 
-func (hf *halalFood) regNgFood(regedWords []string) {
-	for _, word := range regedWords {
-		hf.ngFoods = append(hf.ngFoods, word)
-	}
-}
-
 func HalalBot(w http.ResponseWriter, r *http.Request) {
 	events, err := bot.ParseRequest(r)
 	if err != nil {
@@ -135,13 +127,7 @@ func HalalBot(w http.ResponseWriter, r *http.Request) {
 				switch {
 				case message.Text == "NG LIST":
 					msg = hl.createNgList()
-				case message.Text == "TEST" && typing != true:
-					msg = "食べられない食べ物の名前を教えて下さい🙇‍\n" +
-						"終了するときは何でもいいのでスタンプを押してください✌"
-					typing = true
-				case typing == true:
-					regWord = append(regWord, message.Text)
-					msg = "登録完了"
+
 				default:
 					msg = message.Text
 				}
@@ -163,8 +149,7 @@ func HalalBot(w http.ResponseWriter, r *http.Request) {
 				case true:
 					foodName, canEat := hl.judge(texts)
 
-					log.Println(foodName, canEat)
-
+					// canEat = true の場合の処理に変更する
 					if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewStickerMessage(lineStamp[canEat]["packageID"], lineStamp[canEat]["stickerID"]), linebot.NewTextMessage(foodName)).Do(); err != nil {
 						log.Println(err)
 					}
@@ -175,26 +160,8 @@ func HalalBot(w http.ResponseWriter, r *http.Request) {
 					}
 				}
 			case *linebot.StickerMessage:
-				if typing {
-
-					hl.regNgFood(regWord)
-
-					var msg string
-					for _, word := range regWord {
-						msg += word + "\n"
-					}
-
-					if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(strings.TrimRight(msg, "\n"))).Do(); err != nil {
-						log.Println(err)
-					}
-
-					typing = false
-					regWord = []string{}
-
-				} else {
-					if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewStickerMessage(message.PackageID, message.StickerID)).Do(); err != nil {
-						log.Println(err)
-					}
+				if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewStickerMessage(message.PackageID, message.StickerID)).Do(); err != nil {
+					log.Println(err)
 				}
 			}
 		}
