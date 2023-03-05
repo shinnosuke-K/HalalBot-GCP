@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	cloud.google.com/go v0.56.0
-	github.com/line/line-bot-sdk-go v7.3.0+incompatible
+	github.com/line/line-bot-sdk-go v7.8.0+incompatible
 )
 
 require (
