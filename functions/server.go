@@ -2,6 +2,8 @@ package HalalBot_GCP
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -9,7 +11,6 @@ import (
 	"strings"
 
 	vision "cloud.google.com/go/vision/apiv1"
-
 	"github.com/line/line-bot-sdk-go/linebot"
 )
 
@@ -21,17 +22,18 @@ var (
 
 func init() {
 	var err error
-
 	bot, err = linebot.New(
 		os.Getenv("CHANNEL_SECRET"),
 		os.Getenv("CHANNEL_TOKEN"),
 	)
-
 	if err != nil {
-		log.Fatal(err)
+		fmt.Printf("[error] %s", err)
+		os.Exit(1)
 	}
 
-	hl = newHalal()
+	hl = &halalFood{
+		ngFoods: []string{"ワイン", "みりん", "日本酒", "ビール", "ラム酒", "料理酒", "豚肉", "豚", "ポーク", "ゼラチン", "ラード"},
+	}
 
 	lineStamp = map[bool]map[string]string{
 		true: {
@@ -45,41 +47,31 @@ func init() {
 	}
 }
 
-func ocr(ctn io.ReadCloser) ([]string, bool) {
-	ctx := context.Background()
-
+func ocr(ctx context.Context, ctn io.Reader) ([]string, error) {
 	client, err := vision.NewImageAnnotatorClient(ctx)
 	if err != nil {
-		log.Println(err)
-		return nil, false
+		return nil, fmt.Errorf("failed to  create image  annotation client. %w", err)
 	}
 
 	img, err := vision.NewImageFromReader(ctn)
 	if err != nil {
-		log.Println(err)
-		return nil, false
+		return nil, fmt.Errorf("failed to create reader.  %w", err)
 	}
 
 	texts, err := client.DetectTexts(ctx, img, nil, 1)
 	if err != nil {
-		log.Println(err)
-		return nil, false
+		return nil, fmt.Errorf("failed to detect text. %w", err)
 	}
 
 	var detectedTextLists []string
 	for _, text := range texts {
 		detectedTextLists = append(detectedTextLists, text.GetDescription())
 	}
-
-	return detectedTextLists, true
+	return detectedTextLists, nil
 }
 
 type halalFood struct {
 	ngFoods []string
-}
-
-func newHalal() *halalFood {
-	return &halalFood{ngFoods: []string{"ワイン", "みりん", "日本酒", "ビール", "ラム酒", "料理酒", "豚肉", "豚", "ポーク", "ゼラチン", "ラード"}}
 }
 
 func (hf *halalFood) judge(texts []string) (string, bool) {
@@ -111,57 +103,66 @@ func (hf *halalFood) createNgList() string {
 func HalalBot(w http.ResponseWriter, r *http.Request) {
 	events, err := bot.ParseRequest(r)
 	if err != nil {
-		if err == linebot.ErrInvalidSignature {
+		if errors.Is(err, linebot.ErrInvalidSignature) {
 			w.WriteHeader(http.StatusBadRequest)
 		} else {
 			w.WriteHeader(http.StatusInternalServerError)
 		}
+		return
 	}
 
 	for _, event := range events {
 		if event.Type == linebot.EventTypeMessage {
 			switch message := event.Message.(type) {
 			case *linebot.TextMessage:
-
-				var msg string
-				switch {
-				case message.Text == "NG LIST":
+				msg := message.Text
+				if msg == "NG LIST" {
 					msg = hl.createNgList()
-
-				default:
-					msg = message.Text
 				}
-
 				if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(msg)).Do(); err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					fmt.Fprint(w, err)
 					log.Println(err)
+					return
 				}
 
 			case *linebot.ImageMessage:
-				ctn, err := bot.GetMessageContent(message.ID).Do()
+				msg, err := bot.GetMessageContent(message.ID).Do()
+				if err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					fmt.Fprint(w, err)
+					log.Println(err)
+					return
+				}
+
+				defer msg.Content.Close()
+				texts, err := ocr(r.Context(), msg.Content)
 				if err != nil {
 					log.Println(err)
-				}
-
-				defer ctn.Content.Close()
-				texts, ok := ocr(ctn.Content)
-
-				switch ok {
-				case true:
-					foodName, canEat := hl.judge(texts)
-
-					// canEat = true の場合の処理に変更する
-					if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewStickerMessage(lineStamp[canEat]["packageID"], lineStamp[canEat]["stickerID"]), linebot.NewTextMessage(foodName)).Do(); err != nil {
-						log.Println(err)
-					}
-
-				case false:
 					if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("Please retry")).Do(); err != nil {
+						w.WriteHeader(http.StatusInternalServerError)
+						fmt.Fprint(w, err)
 						log.Println(err)
+						return
 					}
+					return
 				}
+
+				foodName, canEat := hl.judge(texts)
+				// TODO: canEat = true の場合の処理に変更する
+				if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewStickerMessage(lineStamp[canEat]["packageID"], lineStamp[canEat]["stickerID"]), linebot.NewTextMessage(foodName)).Do(); err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					fmt.Fprint(w, err)
+					log.Println(err)
+					return
+				}
+
 			case *linebot.StickerMessage:
 				if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewStickerMessage(message.PackageID, message.StickerID)).Do(); err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					fmt.Fprint(w, err)
 					log.Println(err)
+					return
 				}
 			}
 		}
